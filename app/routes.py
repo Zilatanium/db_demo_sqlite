@@ -1,6 +1,6 @@
 from app import app
 from flask import render_template, redirect, url_for
-from app.forms import AddForm, DeleteForm, SearchForm
+from app.forms import AddForm, DeleteForm, SearchForm, FilterForm
 from app import db
 from app.models import City
 import sys
@@ -58,6 +58,19 @@ def search_by_name():
         else:
             return render_template('not_found.html')
     return render_template('search.html', form=form)
+
+@app.route('/filter', methods=['GET','POST'])
+def filter_by_population():
+    form = FilterForm()
+    if form.validate_on_submit():
+        record = db.session.query(City).filter(City.population>form.population.data)
+        if record:
+            print(record)
+            return render_template('view_cities.html', cities=record)
+        else:
+            return render_template('not_found.html')
+    return render_template('filter.html', form=form)
+
 
 @app.route('/view_all')
 def view():
